@@ -1,5 +1,5 @@
 .App {
-  text-align: center;
+  margin: 50px;
 }
 
 .App-logo {
@@ -35,4 +35,35 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+aside {
+  width: 200px;
+  background-color: #f0f0f0;
+  padding: 20px;
+  flex: 0 0 200px;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+th,
+td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+th {
+  background-color: #f2f2f2;
+}
+
+img {
+  width: 100px;
+}
+
+.webcam {
+  width: 300px;
 }
