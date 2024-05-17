@@ -266,7 +266,7 @@ class Sampai extends Component {
                 <button onClick={this.handleFoto}>Jepret</button>
               </div>
             ) : (
-              <p>Hello world</p>
+              <img src={this.state.fotoBukti} alt="foto bukti" />
             )}
           </div>
           <div>

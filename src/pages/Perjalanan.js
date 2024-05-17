@@ -160,7 +160,7 @@ class Perjalanan extends Component {
                   ))}
                 </td>
                 <td>{trip.durasi} menit</td>
-                <td>{trip.jarak} meter</td>
+                <td>{trip.jarak} km</td>
                 <td>
                   <img src={trip.fotoBukti} alt="" />
                 </td>
@@ -177,6 +177,9 @@ class Perjalanan extends Component {
                   <button onClick={() => this.handleDelete(trip.id)}>
                     Hapus
                   </button>
+                  {/* <button onClick={() => this.lanjutPerjalanan(trip.id)}>
+                    lanjut perjalanan
+                  </button> */}
                 </td>
               </tr>
             ))}

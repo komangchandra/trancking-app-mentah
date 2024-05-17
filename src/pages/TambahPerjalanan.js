@@ -4,10 +4,10 @@ import { db } from "../config/Firebase";
 import {
   addDoc,
   collection,
+  doc,
+  getDocs,
   query,
   where,
-  getDocs,
-  doc,
 } from "firebase/firestore";
 import Swal from "sweetalert2";
 import withRouter from "../function/wihRouter";
@@ -23,11 +23,23 @@ class TambahPerjalanan extends Component {
       namaLokasi: {},
       user: uid,
       status: "Belum selesai",
+      isLanjutPerjalanan: false,
       isMencariLokasi: false,
       isProses: false,
-      displayName: "",
+      hariIni: "",
+      trips: [],
     };
   }
+
+  componentDidMount = () => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, "0");
+    const day = String(today.getDate()).padStart(2, "0");
+    const formattedDate = `${year}-${month}-${day}`;
+
+    this.setState({ hariIni: formattedDate });
+  };
 
   handleLokasiAwal = async () => {
     this.setState({ isMencariLokasi: true });
@@ -54,14 +66,22 @@ class TambahPerjalanan extends Component {
       this.setState({ isMencariLokasi: false });
     } catch (error) {
       console.error("Error:", error);
+      this.setState({ isMencariLokasi: false });
     }
   };
 
   handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const { alasan, jamBerangkat, lokasiAwal, status, user, namaLokasi } =
-        this.state;
+      const {
+        alasan,
+        jamBerangkat,
+        lokasiAwal,
+        status,
+        user,
+        namaLokasi,
+        hariIni,
+      } = this.state;
 
       const tripRef = collection(db, "trips");
       const userRef = doc(db, "User", user);
@@ -69,6 +89,7 @@ class TambahPerjalanan extends Component {
         alasan,
         status,
         refUser: userRef,
+        tanggal: hariIni,
         durasi: null,
         fotoBukti: null,
         jarak: null,
@@ -97,10 +118,74 @@ class TambahPerjalanan extends Component {
     }
   };
 
+  handlePilihLanjutPerjalanan = async () => {
+    this.setState({ isLanjutPerjalanan: !this.state.isLanjutPerjalanan });
+
+    const { user } = this.state;
+    try {
+      const userRef = doc(db, "User", user);
+      const tripsCollection = collection(db, "trips");
+      const userTripsQuery = query(
+        tripsCollection,
+        where("refUser", "==", userRef)
+      );
+      const querySnapshot = await getDocs(userTripsQuery);
+
+      const tripList = [];
+      for (const doc of querySnapshot.docs) {
+        const tripData = doc.data();
+        // Ambil data dari subkoleksi 'lokasiAwal'
+        const lokasiAwalRef = collection(doc.ref, "lokasiAwal");
+        const lokasiAwalSnapshot = await getDocs(lokasiAwalRef);
+        const lokasiAwalData = lokasiAwalSnapshot.docs.map((lokasiDoc) =>
+          lokasiDoc.data()
+        );
+
+        // Tambahkan data lokasiAwal ke dalam data perjalanan
+        tripData.lokasiAwal = lokasiAwalData;
+
+        const lokasiAkhirRef = collection(doc.ref, "lokasiAkhir");
+        const lokasiAkhirSnapshot = await getDocs(lokasiAkhirRef);
+        const lokasiAkhirData = lokasiAkhirSnapshot.docs.map((lokasiDoc) =>
+          lokasiDoc.data()
+        );
+
+        // Tambahkan data lokasiAkhir ke dalam data perjalanan
+        tripData.lokasiAkhir = lokasiAkhirData;
+
+        tripList.push({ id: doc.id, ...tripData });
+      }
+
+      await new Promise((resolve) => {
+        this.setState({ trips: tripList }, resolve);
+      });
+
+      console.log({ trips: this.state.trips });
+    } catch (error) {
+      console.error("Error fetching data: ", error);
+      throw error;
+    }
+  };
+
   render() {
     return (
       <div>
-        <h3>Form tambah perjalanan - {this.state.displayName}</h3>
+        <h3>Form tambah perjalanan</h3>
+        <button onClick={this.handlePilihLanjutPerjalanan}>
+          Saya mau lanjut perjalanan
+        </button>
+        <hr />
+
+        {this.state.isLanjutPerjalanan && (
+          <select>
+            {this.state.trips.map((trip) => {
+              <option key={trip.id} value="volvo">
+                Volvo
+              </option>;
+            })}
+          </select>
+        )}
+
         <form action="">
           <div>
             <label>Alasan</label>
@@ -130,9 +215,15 @@ class TambahPerjalanan extends Component {
             </button>
           </div>
 
-          <button disabled={this.state.isProses} onClick={this.handleSubmit}>
-            Simpan
-          </button>
+          {this.state.isLanjutPerjalanan ? (
+            <button disabled={this.state.isProses} onClick={this.handleSubmit}>
+              Lanjut perjalanan
+            </button>
+          ) : (
+            <button disabled={this.state.isProses} onClick={this.handleSubmit}>
+              Simpan
+            </button>
+          )}
         </form>
       </div>
     );
