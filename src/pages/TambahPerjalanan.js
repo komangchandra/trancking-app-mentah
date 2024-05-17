@@ -28,10 +28,16 @@ class TambahPerjalanan extends Component {
       isProses: false,
       hariIni: "",
       trips: [],
+      trip: {},
     };
   }
 
-  componentDidMount = () => {
+  componentDidMount = async () => {
+    await this.getHariIni();
+    await this.getPerjalananHariIni();
+  };
+
+  getHariIni = () => {
     const today = new Date();
     const year = today.getFullYear();
     const month = String(today.getMonth() + 1).padStart(2, "0");
@@ -118,16 +124,16 @@ class TambahPerjalanan extends Component {
     }
   };
 
-  handlePilihLanjutPerjalanan = async () => {
-    this.setState({ isLanjutPerjalanan: !this.state.isLanjutPerjalanan });
-
-    const { user } = this.state;
+  getPerjalananHariIni = async () => {
+    const { user, hariIni } = this.state;
     try {
       const userRef = doc(db, "User", user);
       const tripsCollection = collection(db, "trips");
       const userTripsQuery = query(
         tripsCollection,
-        where("refUser", "==", userRef)
+        where("refUser", "==", userRef),
+        where("tanggal", "==", hariIni),
+        where("status", "==", "Selesai")
       );
       const querySnapshot = await getDocs(userTripsQuery);
 
@@ -167,22 +173,79 @@ class TambahPerjalanan extends Component {
     }
   };
 
+  handleTripsId = async (e) => {
+    const id = e.target.value;
+    const trip = this.state.trips.filter((trip) => trip.id === id);
+    await new Promise((resolve) => {
+      this.setState({ trip: trip }, resolve);
+    });
+  };
+
+  handlePerjalananBaru = async (e) => {
+    e.preventDefault();
+    try {
+      const { alasan, jamBerangkat, status, user, namaLokasi, hariIni, trip } =
+        this.state;
+
+      console.log(trip[0].lokasiAkhir[0]);
+
+      const lokasiAwal = trip[0].lokasiAkhir[0];
+
+      const tripRef = collection(db, "trips");
+      const userRef = doc(db, "User", user);
+      const newTrip = await addDoc(tripRef, {
+        alasan,
+        status,
+        refUser: userRef,
+        tanggal: hariIni,
+        durasi: null,
+        fotoBukti: null,
+        jarak: null,
+      });
+
+      // Menyimpan data lokasiAwal di dalam subkoleksi
+      const lokasiAwalRef = collection(newTrip, "lokasiAwal");
+      await addDoc(lokasiAwalRef, lokasiAwal);
+      Swal.fire({
+        title: "Berhasil",
+        text: "Berhasil menambah lanjut perjalanan",
+        icon: "success",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          window.location.href = `/perjalanan`;
+        }
+      });
+
+      console.log("berhasil");
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+
   render() {
     return (
       <div>
         <h3>Form tambah perjalanan</h3>
-        <button onClick={this.handlePilihLanjutPerjalanan}>
-          Saya mau lanjut perjalanan
+        <button
+          onClick={() =>
+            this.setState({
+              isLanjutPerjalanan: !this.state.isLanjutPerjalanan,
+            })
+          }>
+          {this.state.isLanjutPerjalanan
+            ? "Gajadi deng"
+            : "Saya mau lanjut perjalanan"}
         </button>
         <hr />
 
         {this.state.isLanjutPerjalanan && (
-          <select>
-            {this.state.trips.map((trip) => {
-              <option key={trip.id} value="volvo">
-                Volvo
-              </option>;
-            })}
+          <select onChange={this.handleTripsId}>
+            <option>Pilih lokasi</option>
+            {this.state.trips.map((trip) => (
+              <option key={trip.id} value={trip.id}>
+                {trip.alasan} -{trip.lokasiAkhir[0].alamat}
+              </option>
+            ))}
           </select>
         )}
 
@@ -201,22 +264,29 @@ class TambahPerjalanan extends Component {
               onChange={(e) => this.setState({ jamBerangkat: e.target.value })}
             />
           </div>
-          <div>
-            <label>Lokasi awal</label>
-            <input
-              type="text"
-              readOnly
-              value={`${this.state.lokasiAwal.latitude},${this.state.lokasiAwal.longitude}`}
-            />
-            <button
-              disabled={this.state.isMencariLokasi}
-              onClick={this.handleLokasiAwal}>
-              pilih lokasi
-            </button>
-          </div>
 
           {this.state.isLanjutPerjalanan ? (
-            <button disabled={this.state.isProses} onClick={this.handleSubmit}>
+            ""
+          ) : (
+            <div>
+              <label>Lokasi awal</label>
+              <input
+                type="text"
+                readOnly
+                value={`${this.state.lokasiAwal.latitude},${this.state.lokasiAwal.longitude}`}
+              />
+              <button
+                disabled={this.state.isMencariLokasi}
+                onClick={this.handleLokasiAwal}>
+                pilih lokasi
+              </button>
+            </div>
+          )}
+
+          {this.state.isLanjutPerjalanan ? (
+            <button
+              disabled={this.state.isProses}
+              onClick={this.handlePerjalananBaru}>
               Lanjut perjalanan
             </button>
           ) : (

@@ -16,8 +16,10 @@ class Perjalanan extends Component {
     super(props);
     this.state = {
       trips: [],
+      filteredTrips: [],
       displayName: "",
       user: {},
+      isSemuaData: false,
     };
   }
 
@@ -25,6 +27,7 @@ class Perjalanan extends Component {
     const userEmail = localStorage.getItem("userEmail");
     await this.setState({ displayName: userEmail });
     await this.getAllTripsByUid();
+    await this.getPerjalananByStatus();
   };
 
   getUserLogin = async (email) => {
@@ -91,11 +94,25 @@ class Perjalanan extends Component {
         this.setState({ trips: tripList }, resolve);
       });
 
-      console.log(this.state.trips);
+      console.log({ trips: this.state.trips });
+
+      // console.log(this.state.trips);
     } catch (error) {
       console.error("Error fetching data: ", error);
       throw error;
     }
+  };
+
+  getPerjalananByStatus = async () => {
+    const filteredTrips = this.state.trips.filter(
+      (trip) => trip.status === "Belum selesai"
+    );
+
+    await new Promise((resolve) => {
+      this.setState({ filteredTrips }, resolve);
+    });
+
+    console.log(this.state.filteredTrips);
   };
 
   handleDelete = async (id) => {
@@ -120,6 +137,15 @@ class Perjalanan extends Component {
           <button>Tambah perjalanan</button>
         </Link>
 
+        <div>
+          <button
+            onClick={() =>
+              this.setState({ isSemuaData: !this.state.isSemuaData })
+            }>
+            {this.state.isSemuaData ? "ini semua data" : "ini data belum sesai"}
+          </button>
+        </div>
+
         <table>
           <thead>
             <tr>
@@ -133,57 +159,108 @@ class Perjalanan extends Component {
               <th>Hapus</th>
             </tr>
           </thead>
-          <tbody>
-            {this.state.trips.map((trip) => (
-              <tr key={trip.id}>
-                <td>{trip.alasan}</td>
-                <td>
-                  {trip.lokasiAwal.map((lokasi, index) => (
-                    <ul key={index}>
-                      <li>Jam Mulai: {lokasi.jamMulai}</li>
-                      <li>Alamat: {lokasi.alamat}</li>
-                      <li>Lokasi: {lokasi.lokasi}</li>
-                      <li>Latitude: {lokasi.latitude}</li>
-                      <li>Longitude: {lokasi.longitude}</li>
-                    </ul>
-                  ))}
-                </td>
-                <td>
-                  {trip.lokasiAkhir.map((lokasi, index) => (
-                    <ul key={index}>
-                      <li>Jam Sampai: {lokasi.jamSampai} WIB</li>
-                      <li>Alamat: {lokasi.alamat}</li>
-                      <li>Lokasi: {lokasi.lokasi}</li>
-                      <li>Latitude: {lokasi.latitude}</li>
-                      <li>Longitude: {lokasi.longitude}</li>
-                    </ul>
-                  ))}
-                </td>
-                <td>{trip.durasi} menit</td>
-                <td>{trip.jarak} km</td>
-                <td>
-                  <img src={trip.fotoBukti} alt="" />
-                </td>
-                <td>
-                  {trip.status == "Belum selesai" ? (
-                    <Link to={`/sampai/${trip.id}`}>
-                      <button>Belum sampai</button>
-                    </Link>
-                  ) : (
-                    trip.status
-                  )}
-                </td>
-                <td>
-                  <button onClick={() => this.handleDelete(trip.id)}>
-                    Hapus
-                  </button>
-                  {/* <button onClick={() => this.lanjutPerjalanan(trip.id)}>
+          {this.state.isSemuaData ? (
+            <tbody>
+              {this.state.trips.map((trip) => (
+                <tr key={trip.id}>
+                  <td>{trip.alasan}</td>
+                  <td>
+                    {trip.lokasiAwal.map((lokasi, index) => (
+                      <ul key={index}>
+                        <li>Jam Mulai: {lokasi.jamMulai}</li>
+                        <li>Alamat: {lokasi.alamat}</li>
+                        <li>Lokasi: {lokasi.lokasi}</li>
+                        <li>Latitude: {lokasi.latitude}</li>
+                        <li>Longitude: {lokasi.longitude}</li>
+                      </ul>
+                    ))}
+                  </td>
+                  <td>
+                    {trip.lokasiAkhir.map((lokasi, index) => (
+                      <ul key={index}>
+                        <li>Jam Sampai: {lokasi.jamSampai} WIB</li>
+                        <li>Alamat: {lokasi.alamat}</li>
+                        <li>Lokasi: {lokasi.lokasi}</li>
+                        <li>Latitude: {lokasi.latitude}</li>
+                        <li>Longitude: {lokasi.longitude}</li>
+                      </ul>
+                    ))}
+                  </td>
+                  <td>{trip.durasi} menit</td>
+                  <td>{trip.jarak} km</td>
+                  <td>
+                    <img src={trip.fotoBukti} alt="" />
+                  </td>
+                  <td>
+                    {trip.status == "Belum selesai" ? (
+                      <Link to={`/sampai/${trip.id}`}>
+                        <button>Belum sampai</button>
+                      </Link>
+                    ) : (
+                      trip.status
+                    )}
+                  </td>
+                  <td>
+                    <button onClick={() => this.handleDelete(trip.id)}>
+                      Hapus
+                    </button>
+                    {/* <button onClick={() => this.lanjutPerjalanan(trip.id)}>
                     lanjut perjalanan
                   </button> */}
-                </td>
-              </tr>
-            ))}
-          </tbody>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          ) : (
+            <tbody>
+              {this.state.filteredTrips.map((trip) => (
+                <tr key={trip.id}>
+                  <td>{trip.alasan}</td>
+                  <td>
+                    {trip.lokasiAwal.map((lokasi, index) => (
+                      <ul key={index}>
+                        <li>Jam Mulai: {lokasi.jamMulai}</li>
+                        <li>Alamat: {lokasi.alamat}</li>
+                        <li>Lokasi: {lokasi.lokasi}</li>
+                        <li>Latitude: {lokasi.latitude}</li>
+                        <li>Longitude: {lokasi.longitude}</li>
+                      </ul>
+                    ))}
+                  </td>
+                  <td>
+                    {trip.lokasiAkhir.map((lokasi, index) => (
+                      <ul key={index}>
+                        <li>Jam Sampai: {lokasi.jamSampai} WIB</li>
+                        <li>Alamat: {lokasi.alamat}</li>
+                        <li>Lokasi: {lokasi.lokasi}</li>
+                        <li>Latitude: {lokasi.latitude}</li>
+                        <li>Longitude: {lokasi.longitude}</li>
+                      </ul>
+                    ))}
+                  </td>
+                  <td>{trip.durasi} menit</td>
+                  <td>{trip.jarak} km</td>
+                  <td>
+                    <img src={trip.fotoBukti} alt="" />
+                  </td>
+                  <td>
+                    {trip.status == "Belum selesai" ? (
+                      <Link to={`/sampai/${trip.id}`}>
+                        <button>Belum sampai</button>
+                      </Link>
+                    ) : (
+                      trip.status
+                    )}
+                  </td>
+                  <td>
+                    <button onClick={() => this.handleDelete(trip.id)}>
+                      Hapus
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          )}
         </table>
       </div>
     );

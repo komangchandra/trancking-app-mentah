@@ -6,8 +6,19 @@ class Home extends Component {
     this.state = {};
   }
 
+  logout = () => {
+    localStorage.removeItem("isLoggedIn");
+    localStorage.removeItem("userEmail");
+    window.location.href = `/login`;
+  };
+
   render() {
-    return <div>Welcome to hello world</div>;
+    return (
+      <>
+        <div>Welcome to hello world</div>
+        <button onClick={this.logout}>logout</button>
+      </>
+    );
   }
 }
 
