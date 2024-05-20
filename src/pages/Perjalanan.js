@@ -58,7 +58,7 @@ class Perjalanan extends Component {
     const { user } = this.state;
     try {
       const userRef = doc(db, "User", user.uid);
-      const tripsCollection = collection(db, "trips");
+      const tripsCollection = collection(db, "trip");
       const userTripsQuery = query(
         tripsCollection,
         where("refUser", "==", userRef)
@@ -119,7 +119,7 @@ class Perjalanan extends Component {
     try {
       const result = window.confirm("Apakah Anda yakin ingin menghapus?");
       if (result === true) {
-        await deleteDoc(doc(db, "trips", id));
+        await deleteDoc(doc(db, "trip", id));
         alert("Data berhasil dihapus.");
         this.getAllTripsByUid();
       }

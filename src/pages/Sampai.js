@@ -201,7 +201,7 @@ class Sampai extends Component {
     const status = "Selesai";
 
     try {
-      await updateDoc(doc(db, "trips", documentId), {
+      await updateDoc(doc(db, "trip", documentId), {
         fotoBukti,
         durasi,
         jarak,
