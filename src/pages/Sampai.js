@@ -19,6 +19,7 @@ class Sampai extends Component {
   constructor(props) {
     super(props);
     this.webcamRef = React.createRef();
+    this.fileInputRef = React.createRef();
     const { id } = this.props.params;
     this.state = {
       isOpenCamera: false,
@@ -256,24 +257,12 @@ class Sampai extends Component {
         <h3>Sampai dilokasi</h3>
         <form action="">
           <div>
-            {this.state.isOpenCamera ? (
-              <div>
-                <Webcam
-                  audio={false}
-                  ref={this.webcamRef}
-                  screenshotFormat="image/jpeg"
-                />
-                <button onClick={this.handleFoto}>Jepret</button>
-              </div>
-            ) : (
-              <img src={this.state.fotoBukti} alt="foto bukti" />
-            )}
-          </div>
-          <div>
-            <label>Foto keberangkatan</label>
-            <button onClick={this.handleKamera}>
-              {this.state.isOpenCamera ? "Tutup Kamera" : "Buka Kamera"}
-            </button>
+            <input
+              type="file"
+              accept="image/*"
+              capture="camera"
+              ref={this.fileInputRef}
+            />
           </div>
           <div>
             <label>Lokasi awal</label>
