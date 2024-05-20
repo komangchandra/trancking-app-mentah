@@ -82,11 +82,10 @@ class Sampai extends Component {
   };
 
   handleFoto = async (file) => {
-    const imageBlob = this.dataURItoBlob(file);
     const storageRef = ref(dbImage, `trip/${Date.now()}.jpg`);
 
     try {
-      const snapshot = await uploadBytes(storageRef, imageBlob);
+      const snapshot = await uploadBytes(storageRef, file);
       const downloadURL = await getDownloadURL(
         ref(dbImage, snapshot.ref.fullPath)
       );
@@ -97,18 +96,6 @@ class Sampai extends Component {
     } catch (error) {
       console.error("Gagal mengunggah foto:", error);
     }
-  };
-
-  // Fungsi untuk mengonversi data URI menjadi Blob
-  dataURItoBlob = (dataURI) => {
-    const byteString = atob(dataURI.split(",")[1]);
-    const mimeString = dataURI.split(",")[0].split(":")[1].split(";")[0];
-    const ab = new ArrayBuffer(byteString.length);
-    const ia = new Uint8Array(ab);
-    for (let i = 0; i < byteString.length; i++) {
-      ia[i] = byteString.charCodeAt(i);
-    }
-    return new Blob([ab], { type: mimeString });
   };
 
   handleLokasiAkhir = async () => {
