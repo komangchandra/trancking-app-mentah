@@ -209,7 +209,7 @@ class Sampai extends Component {
       });
 
       // Add a new document to the lokasiAkhir subcollection
-      const lokasiAkhirRef = collection(db, "trips", documentId, "lokasiAkhir");
+      const lokasiAkhirRef = collection(db, "trip", documentId, "lokasiAkhir");
       await addDoc(lokasiAkhirRef, {
         jamSampai: jam,
         latitude: lokasiAkhir.latitude,
