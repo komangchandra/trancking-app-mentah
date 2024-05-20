@@ -251,12 +251,18 @@ class TambahPerjalanan extends Component {
 
         <form action="">
           <div>
+            <input type="date" className="bg-blue-500" />
+            <input type="date" className="bg-blue-500" />
             <label>Alasan</label>
             <textarea
               type="text"
               onChange={(e) => this.setState({ alasan: e.target.value })}
             />
           </div>
+          <select onChange={this.handleTripsId}>
+            <option>Pilih lokasi</option>
+            <option value="Dalam Kota">Da</option>
+          </select>
           <div>
             <label>Jam Berangkat</label>
             <input
