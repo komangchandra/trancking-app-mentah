@@ -34,7 +34,6 @@ class Sampai extends Component {
 
   componentDidMount = async () => {
     await this.getDataPerjalanan();
-    await this.handleHitungDurasi();
   };
 
   getDataPerjalanan = async () => {
@@ -42,7 +41,7 @@ class Sampai extends Component {
 
     try {
       // Mendapatkan data trip utama
-      const tripDoc = doc(db, "trips", documentId);
+      const tripDoc = doc(db, "trip", documentId);
       const tripSnapshot = await getDoc(tripDoc);
 
       if (tripSnapshot.exists()) {
@@ -62,7 +61,7 @@ class Sampai extends Component {
           this.setState({ lokasiAwal: lokasiAwalData }, resolve);
         });
 
-        console.log(this.state.lokasiAwal);
+        console.log({ lokasiAwal: this.state.lokasiAwal });
       } else {
         console.log("Dokumen tidak ditemukan.");
       }
@@ -115,17 +114,12 @@ class Sampai extends Component {
           resolve
         );
       });
-      console.log(
-        { lokasiAkhir: this.state.lokasiAkhir },
-        { namaLokasi: this.state.namaLokasi }
-      );
 
       await this.handleHitungJarak();
-
-      this.setState({ isMencariLokasi: false });
     } catch (error) {
       console.error("Error:", error);
     }
+    this.setState({ isMencariLokasi: false });
   };
 
   handleHitungDurasi = async () => {
