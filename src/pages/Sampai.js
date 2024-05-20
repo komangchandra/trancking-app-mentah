@@ -74,19 +74,19 @@ class Sampai extends Component {
     }
   };
 
-  capture = () => {
-    const imageSrc = this.webcamRef.current.getScreenshot();
-    this.setState({ fotoBukti: imageSrc });
-  };
+  // capture = () => {
+  //   const imageSrc = this.webcamRef.current.getScreenshot();
+  //   this.setState({ fotoBukti: imageSrc });
+  // };
 
   handleKamera = (e) => {
-    e.preventDefault();
-    const { isOpenCamera } = this.state;
-    this.setState({ isOpenCamera: !isOpenCamera });
+    const file = e.target.files[0];
+    if (!file) return;
+
+    this.handleFoto(file);
   };
 
-  handleFoto = async (e) => {
-    e.preventDefault();
+  handleFoto = async (file) => {
     const imageSrc = this.webcamRef.current.getScreenshot();
     const imageBlob = this.dataURItoBlob(imageSrc);
     const storageRef = ref(dbImage, `trip/${Date.now()}.jpg`);
@@ -255,7 +255,7 @@ class Sampai extends Component {
     return (
       <div>
         <h3>Sampai dilokasi</h3>
-        <form action="">
+        <div>
           <div>
             <input
               type="file"
@@ -280,7 +280,7 @@ class Sampai extends Component {
           <button disabled={this.state.isProses} onClick={this.handleSubmit}>
             Simpan
           </button>
-        </form>
+        </div>
       </div>
     );
   }
