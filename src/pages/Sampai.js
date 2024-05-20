@@ -189,6 +189,8 @@ class Sampai extends Component {
 
   handleSubmit = async (e) => {
     e.preventDefault();
+    await this.handleHitungDurasi();
+    await this.handleHitungJarak();
     console.log("Berjalan");
 
     const { documentId, lokasiAkhir, namaLokasi, fotoBukti, durasi, jarak } =
