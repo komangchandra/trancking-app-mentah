@@ -12,13 +12,10 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import Swal from "sweetalert2";
-import Camera from "../components/Camera";
-import Webcam from "react-webcam";
 
 class Sampai extends Component {
   constructor(props) {
     super(props);
-    this.webcamRef = React.createRef();
     this.fileInputRef = React.createRef();
     const { id } = this.props.params;
     this.state = {
@@ -73,8 +70,6 @@ class Sampai extends Component {
       console.error("Error fetching trip details:", error);
     }
   };
-
-  // capture = () => {
   //   const imageSrc = this.webcamRef.current.getScreenshot();
   //   this.setState({ fotoBukti: imageSrc });
   // };
@@ -87,8 +82,7 @@ class Sampai extends Component {
   };
 
   handleFoto = async (file) => {
-    const imageSrc = this.webcamRef.current.getScreenshot();
-    const imageBlob = this.dataURItoBlob(imageSrc);
+    const imageBlob = this.dataURItoBlob(file);
     const storageRef = ref(dbImage, `trip/${Date.now()}.jpg`);
 
     try {
@@ -262,6 +256,7 @@ class Sampai extends Component {
               accept="image/*"
               capture="camera"
               ref={this.fileInputRef}
+              onChange={this.handleKamera}
             />
           </div>
           <div>
